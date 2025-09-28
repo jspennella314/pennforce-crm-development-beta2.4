@@ -1,0 +1,274 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite" // switch to postgresql in prod
+  url      = env("DATABASE_URL")
+}
+
+enum AccountType {
+  OWNER
+  OPERATOR
+  MRO
+  BROKER
+  CHARTER_CUSTOMER
+  VENDOR
+}
+
+enum AircraftStatus {
+  ACTIVE
+  FOR_SALE
+  MAINTENANCE
+  IN_ACQUISITION
+  RETIRED
+}
+
+enum OpportunityStage {
+  PROSPECT
+  QUALIFY
+  PROPOSAL
+  NEGOTIATION
+  WON
+  LOST
+}
+
+enum ActivityType {
+  NOTE
+  CALL
+  EMAIL
+  MEETING
+  TASK_COMMENT
+}
+
+enum TaskStatus {
+  OPEN
+  IN_PROGRESS
+  BLOCKED
+  DONE
+  CANCELED
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  users     User[]
+  teams     Team[]
+}
+
+model User {
+  id             String       @id @default(cuid())
+  email          String       @unique
+  name           String?
+  phone          String?
+  role           String       @default("user") // expand to RBAC later
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  passwordHash   String?      // null for OAuth users later
+  organizationId String
+  teams          TeamMember[]
+  tasks          Task[]
+  activities     Activity[]
+  ownedAccounts  Account[]
+  ownedContacts  Contact[]
+  ownedOpportunities Opportunity[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Team {
+  id             String       @id @default(cuid())
+  name           String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  members        TeamMember[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model TeamMember {
+  id     String @id @default(cuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+  team   Team   @relation(fields: [teamId], references: [id])
+  teamId String
+  role   String @default("member")
+
+  @@unique([userId, teamId])
+}
+
+model Account {
+  id               String        @id @default(cuid())
+  name             String
+  type             AccountType
+  website          String?
+  phone            String?
+  email            String?
+  billingAddr      String?
+  shippingAddr     String?
+  notes            String?
+  owner            User?         @relation(fields: [ownerId], references: [id])
+  ownerId          String?
+  contacts         Contact[]
+  opportunities    Opportunity[]
+  aircraft         Aircraft[]    @relation("AccountAircraftOwner")
+  operatedAircraft Aircraft[]    @relation("AccountAircraftOperator")
+  tasks            Task[]
+  activities       Activity[]
+  trips            Trip[]
+  workOrders       WorkOrder[]   @relation("WorkOrderVendor")
+  documents        Document[]    @relation("DocumentAccount")
+  vendorDocuments  Document[]    @relation("DocumentVendor")
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
+
+model Contact {
+  id         String     @id @default(cuid())
+  firstName  String
+  lastName   String
+  email      String?    @unique
+  phone      String?
+  title      String?
+  account    Account    @relation(fields: [accountId], references: [id])
+  accountId  String
+  owner      User?      @relation(fields: [ownerId], references: [id])
+  ownerId    String?
+  opportunities Opportunity[]
+  tasks      Task[]
+  activities Activity[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model Aircraft {
+  id                  String          @id @default(cuid())
+  make                String
+  model               String
+  variant             String?
+  year                Int?
+  serialNumber        String?
+  tailNumber          String?         @unique
+  status              AircraftStatus  @default(ACTIVE)
+  locationIcao        String? // e.g., KSFB, KFXE
+  totalTimeHrs        Float? // TT airframe
+  cycles              Int?
+  enginesJson         String? // engine details per side as JSON string
+  avionicsJson        String?
+  ownerAccount        Account?        @relation("AccountAircraftOwner", fields: [ownerAccountId], references: [id])
+  ownerAccountId      String?
+  operatorAccount     Account?        @relation("AccountAircraftOperator", fields: [operatorAccountId], references: [id])
+  operatorAccountId   String?
+  opportunities       Opportunity[]
+  trips               Trip[]
+  workOrders          WorkOrder[]
+  documents           Document[]
+  activities          Activity[]
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  @@index([tailNumber])
+}
+
+model Opportunity {
+  id         String            @id @default(cuid())
+  name       String
+  stage      OpportunityStage  @default(PROSPECT)
+  amount     Float?            // Using Float instead of Decimal for SQLite
+  currency   String            @default("USD")
+  closeDate  DateTime?
+  source     String?
+  account    Account           @relation(fields: [accountId], references: [id])
+  accountId  String
+  contact    Contact?          @relation(fields: [contactId], references: [id])
+  contactId  String?
+  aircraft   Aircraft?         @relation(fields: [aircraftId], references: [id])
+  aircraftId String?
+  owner      User?             @relation(fields: [ownerId], references: [id])
+  ownerId    String?
+  tasks      Task[]
+  activities Activity[]
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+}
+
+model Trip {
+  id          String    @id @default(cuid())
+  date        DateTime
+  fromIcao    String
+  toIcao      String
+  paxCount    Int?
+  purpose     String? // owner flight, revenue charter, repo, demo, etc.
+  revenue     Float?    // Using Float instead of Decimal for SQLite
+  cost        Float?    // Using Float instead of Decimal for SQLite
+  aircraft    Aircraft  @relation(fields: [aircraftId], references: [id])
+  aircraftId  String
+  account     Account?  @relation(fields: [accountId], references: [id])
+  accountId   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model WorkOrder {
+  id               String    @id @default(cuid())
+  title            String
+  description      String?
+  status           String    @default("OPEN")
+  dueDate          DateTime?
+  aircraft         Aircraft  @relation(fields: [aircraftId], references: [id])
+  aircraftId       String
+  vendor           Account?  @relation("WorkOrderVendor", fields: [vendorAccountId], references: [id])
+  vendorAccountId  String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model Task {
+  id            String       @id @default(cuid())
+  title         String
+  status        TaskStatus   @default(OPEN)
+  dueDate       DateTime?
+  owner         User         @relation(fields: [ownerId], references: [id])
+  ownerId       String
+  account       Account?     @relation(fields: [accountId], references: [id])
+  accountId     String?
+  contact       Contact?     @relation(fields: [contactId], references: [id])
+  contactId     String?
+  opportunity   Opportunity? @relation(fields: [opportunityId], references: [id])
+  opportunityId String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Activity {
+  id            String       @id @default(cuid())
+  type          ActivityType @default(NOTE)
+  content       String
+  user          User?        @relation(fields: [userId], references: [id])
+  userId        String?
+  account       Account?     @relation(fields: [accountId], references: [id])
+  accountId     String?
+  contact       Contact?     @relation(fields: [contactId], references: [id])
+  contactId     String?
+  opportunity   Opportunity? @relation(fields: [opportunityId], references: [id])
+  opportunityId String?
+  aircraft      Aircraft?    @relation(fields: [aircraftId], references: [id])
+  aircraftId    String?
+  createdAt     DateTime     @default(now())
+}
+
+model Document {
+  id               String    @id @default(cuid())
+  label            String
+  url              String
+  aircraft         Aircraft? @relation(fields: [aircraftId], references: [id])
+  aircraftId       String?
+  account          Account?  @relation("DocumentAccount", fields: [accountId], references: [id])
+  accountId        String?
+  vendor           Account?  @relation("DocumentVendor", fields: [vendorAccountId], references: [id])
+  vendorAccountId  String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
