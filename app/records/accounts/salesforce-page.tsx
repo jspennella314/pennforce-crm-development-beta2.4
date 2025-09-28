@@ -55,6 +55,7 @@ import {
   Calendar,
 } from "lucide-react";
 import Link from "next/link";
+import { useRecordTab } from "@/hooks/useRecordTab";
 
 interface Account {
   id: string;
@@ -80,6 +81,7 @@ const ACCOUNT_TYPE_COLORS = {
 
 export default function SalesforceAccountsPage() {
   const { canAccess } = useAuth();
+  const { openAccountTab } = useRecordTab();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -366,12 +368,12 @@ export default function SalesforceAccountsPage() {
                               <Building2 className="h-4 w-4 text-blue-600" />
                             </div>
                             <div>
-                              <Link
-                                href={`/records/accounts/${account.id}`}
-                                className="font-medium text-blue-600 hover:text-blue-800"
+                              <button
+                                onClick={() => openAccountTab(account.id, account.name)}
+                                className="font-medium text-blue-600 hover:text-blue-800 text-left"
                               >
                                 {account.name}
-                              </Link>
+                              </button>
                               <div className="text-sm text-gray-500">
                                 {account.phone && (
                                   <div className="flex items-center">
@@ -413,11 +415,9 @@ export default function SalesforceAccountsPage() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem asChild>
-                                <Link href={`/records/accounts/${account.id}`}>
-                                  <Eye className="h-4 w-4 mr-2" />
-                                  View
-                                </Link>
+                              <DropdownMenuItem onClick={() => openAccountTab(account.id, account.name)}>
+                                <Eye className="h-4 w-4 mr-2" />
+                                View
                               </DropdownMenuItem>
                               <DropdownMenuItem>
                                 <Edit className="h-4 w-4 mr-2" />

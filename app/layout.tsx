@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import NextAuthSessionProvider from "@/components/providers/session-provider";
+import { ConsoleProvider } from "@/components/console/console-context";
 
 export const metadata: Metadata = {
   title: "PennForce CRM",
@@ -16,7 +17,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <NextAuthSessionProvider>
-          {children}
+          <ConsoleProvider>
+            {children}
+          </ConsoleProvider>
         </NextAuthSessionProvider>
       </body>
     </html>

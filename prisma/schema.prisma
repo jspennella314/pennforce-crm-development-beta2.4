@@ -57,6 +57,7 @@ model Organization {
   updatedAt DateTime @updatedAt
   users     User[]
   teams     Team[]
+  listViews ListView[]
 }
 
 model User {
@@ -74,6 +75,7 @@ model User {
   ownedAccounts  Account[]
   ownedContacts  Contact[]
   ownedOpportunities Opportunity[]
+  listViews      ListView[]
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 }
@@ -271,4 +273,22 @@ model Document {
   vendorAccountId  String?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+}
+
+model ListView {
+  id            String   @id @default(cuid())
+  objectName    String
+  name          String
+  isPinned      Boolean  @default(false)
+  isPublic      Boolean  @default(false)
+  owner         User     @relation(fields: [ownerId], references: [id])
+  ownerId       String
+  filtersJson   Json     // [{field,op,value}] simple DSL
+  columnsJson   Json?    // ["name","stage","amount",...]
+  organization  Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([organizationId, objectName, name])
 }

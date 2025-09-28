@@ -22,6 +22,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import SearchResults from "@/components/search/SearchResults";
+import ConsoleTabs from "@/components/console/console-tabs";
 import {
   Home,
   Building2,
@@ -311,6 +312,9 @@ export default function SalesforceAppShell({ children }: SalesforceAppShellProps
           ))}
         </div>
       </nav>
+
+      {/* Console Tabs */}
+      <ConsoleTabs />
 
       {/* Page Content */}
       <main className="flex-1 bg-gray-50">
