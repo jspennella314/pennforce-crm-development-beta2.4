@@ -1,4 +1,5 @@
 import { useSession } from "next-auth/react";
+import { usePermissions } from "./usePermissions";
 
 export type UserRole = "admin" | "manager" | "user";
 
@@ -13,6 +14,7 @@ export interface AuthUser {
 
 export function useAuth() {
   const { data: session, status } = useSession();
+  const permissions = usePermissions();
 
   const user = session?.user as AuthUser | undefined;
 
@@ -31,46 +33,9 @@ export function useAuth() {
     return userLevel >= requiredLevel;
   };
 
+  // Legacy canAccess function - delegates to new permission system
   const canAccess = (resource: string, action: string = "read"): boolean => {
-    if (!user) return false;
-
-    // Admin can access everything
-    if (user.role === "admin") return true;
-
-    // Define permission matrix
-    const permissions: Record<UserRole, Record<string, string[]>> = {
-      admin: {
-        "*": ["create", "read", "update", "delete"],
-      },
-      manager: {
-        accounts: ["create", "read", "update"],
-        aircraft: ["create", "read", "update"],
-        opportunities: ["create", "read", "update", "delete"],
-        contacts: ["create", "read", "update", "delete"],
-        tasks: ["create", "read", "update", "delete"],
-        activities: ["create", "read", "update"],
-        users: ["read"],
-        reports: ["read"],
-      },
-      user: {
-        accounts: ["read"],
-        aircraft: ["read"],
-        opportunities: ["read", "update"],
-        contacts: ["create", "read", "update"],
-        tasks: ["create", "read", "update"],
-        activities: ["create", "read"],
-        reports: ["read"],
-      },
-    };
-
-    const userPermissions = permissions[user.role];
-    if (!userPermissions) return false;
-
-    // Check wildcard permission
-    if (userPermissions["*"]?.includes(action)) return true;
-
-    // Check specific resource permission
-    return userPermissions[resource]?.includes(action) || false;
+    return permissions.can(action, resource);
   };
 
   return {
@@ -79,5 +44,13 @@ export function useAuth() {
     isAuthenticated: !!user,
     hasRole,
     canAccess,
+    // Expose new permission methods
+    can: permissions.can,
+    canRead: permissions.canRead,
+    canEdit: permissions.canEdit,
+    canCreate: permissions.canCreate,
+    canDelete: permissions.canDelete,
+    getReadableFields: permissions.getReadableFields,
+    getEditableFields: permissions.getEditableFields,
   };
 }

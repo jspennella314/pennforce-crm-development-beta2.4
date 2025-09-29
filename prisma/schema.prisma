@@ -58,6 +58,7 @@ model Organization {
   users     User[]
   teams     Team[]
   listViews ListView[]
+  permissionSets PermissionSet[]
 }
 
 model User {
@@ -76,6 +77,7 @@ model User {
   ownedContacts  Contact[]
   ownedOpportunities Opportunity[]
   listViews      ListView[]
+  permissionAssignments PermissionAssignment[]
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 }
@@ -291,4 +293,60 @@ model ListView {
   updatedAt     DateTime @updatedAt
 
   @@unique([organizationId, objectName, name])
+}
+// Permission System Models
+model PermissionSet {
+  id                  String                @id @default(cuid())
+  name                String
+  label               String
+  description         String?
+  isStandard          Boolean               @default(false) // system vs custom
+  organization        Organization          @relation(fields: [organizationId], references: [id])
+  organizationId      String
+  objectPermissions   ObjectPermission[]
+  fieldPermissions    FieldPermission[]
+  assignments         PermissionAssignment[]
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+
+  @@unique([organizationId, name])
+}
+
+model PermissionAssignment {
+  id               String        @id @default(cuid())
+  user             User          @relation(fields: [userId], references: [id])
+  userId           String
+  permissionSet    PermissionSet @relation(fields: [permissionSetId], references: [id])
+  permissionSetId  String
+  assignedBy       String? // userId who assigned
+  createdAt        DateTime      @default(now())
+
+  @@unique([userId, permissionSetId])
+}
+
+model ObjectPermission {
+  id               String        @id @default(cuid())
+  objectName       String        // 'account', 'contact', etc.
+  canCreate        Boolean       @default(false)
+  canRead          Boolean       @default(false)
+  canEdit          Boolean       @default(false)
+  canDelete        Boolean       @default(false)
+  canViewAll       Boolean       @default(false) // bypass sharing rules
+  canModifyAll     Boolean       @default(false) // bypass sharing rules
+  permissionSet    PermissionSet @relation(fields: [permissionSetId], references: [id])
+  permissionSetId  String
+
+  @@unique([permissionSetId, objectName])
+}
+
+model FieldPermission {
+  id               String        @id @default(cuid())
+  objectName       String        // 'account', 'contact', etc.
+  fieldName        String        // 'email', 'phone', etc.
+  canRead          Boolean       @default(false)
+  canEdit          Boolean       @default(false)
+  permissionSet    PermissionSet @relation(fields: [permissionSetId], references: [id])
+  permissionSetId  String
+
+  @@unique([permissionSetId, objectName, fieldName])
 }
