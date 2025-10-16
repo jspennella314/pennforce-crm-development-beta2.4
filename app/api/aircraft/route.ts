@@ -1,0 +1,128 @@
+// API Route: Aircraft
+// GET /api/aircraft - List all aircraft (with org filter and search)
+// POST /api/aircraft - Create new aircraft
+
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const organizationId = searchParams.get('organizationId');
+    const status = searchParams.get('status');
+    const search = searchParams.get('search');
+
+    const where: any = {};
+
+    if (organizationId) {
+      where.organizationId = organizationId;
+    }
+
+    if (status) {
+      where.status = status;
+    }
+
+    if (search) {
+      where.OR = [
+        { make: { contains: search, mode: 'insensitive' } },
+        { model: { contains: search, mode: 'insensitive' } },
+        { tailNumber: { contains: search, mode: 'insensitive' } },
+        { serialNumber: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const aircraft = await prisma.aircraft.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        ownerAccount: {
+          select: { id: true, name: true, type: true },
+        },
+        operatorAccount: {
+          select: { id: true, name: true, type: true },
+        },
+        _count: {
+          select: {
+            opportunities: true,
+            workOrders: true,
+            trips: true,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json(aircraft);
+  } catch (error) {
+    console.error('Error fetching aircraft:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch aircraft' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const {
+      make,
+      model,
+      variant,
+      year,
+      serialNumber,
+      tailNumber,
+      status,
+      locationIcao,
+      totalTimeHrs,
+      cycles,
+      enginesJson,
+      avionicsJson,
+      ownerAccountId,
+      operatorAccountId,
+      organizationId,
+    } = body;
+
+    if (!make || !model || !organizationId) {
+      return NextResponse.json(
+        { error: 'Make, model, and organizationId are required' },
+        { status: 400 }
+      );
+    }
+
+    const aircraft = await prisma.aircraft.create({
+      data: {
+        make,
+        model,
+        variant,
+        year,
+        serialNumber,
+        tailNumber,
+        status: status || 'ACTIVE',
+        locationIcao,
+        totalTimeHrs,
+        cycles,
+        enginesJson,
+        avionicsJson,
+        ownerAccountId,
+        operatorAccountId,
+        organizationId,
+      },
+      include: {
+        ownerAccount: {
+          select: { id: true, name: true, type: true },
+        },
+        operatorAccount: {
+          select: { id: true, name: true, type: true },
+        },
+      },
+    });
+
+    return NextResponse.json(aircraft, { status: 201 });
+  } catch (error) {
+    console.error('Error creating aircraft:', error);
+    return NextResponse.json(
+      { error: 'Failed to create aircraft' },
+      { status: 500 }
+    );
+  }
+}

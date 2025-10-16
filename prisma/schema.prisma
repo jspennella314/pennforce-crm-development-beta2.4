@@ -1,0 +1,463 @@
+// PennForce CRM - Prisma Schema
+// Aviation-focused Salesforce-style CRM
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite" // switch to postgresql in prod
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum AccountType {
+  OWNER
+  OPERATOR
+  MRO
+  BROKER
+  CHARTER_CUSTOMER
+  VENDOR
+}
+
+enum AircraftStatus {
+  ACTIVE
+  FOR_SALE
+  MAINTENANCE
+  IN_ACQUISITION
+  RETIRED
+}
+
+enum OpportunityStage {
+  PROSPECT
+  QUALIFY
+  PROPOSAL
+  NEGOTIATION
+  WON
+  LOST
+}
+
+enum ActivityType {
+  NOTE
+  CALL
+  EMAIL
+  MEETING
+  TASK_COMMENT
+}
+
+enum TaskStatus {
+  OPEN
+  IN_PROGRESS
+  BLOCKED
+  DONE
+  CANCELED
+}
+
+// Core Models
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
+  teams       Team[]
+  accounts    Account[]
+  contacts    Contact[]
+  aircraft    Aircraft[]
+  opportunities Opportunity[]
+  tasks       Task[]
+  workOrders  WorkOrder[]
+  trips       Trip[]
+  activities  Activity[]
+  documents   Document[]
+  listViews   ListView[]
+  objectLayouts ObjectLayout[]
+  emailTemplates EmailTemplate[]
+  notifications Notification[]
+  auditLogs     AuditLog[]
+}
+
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  name           String?
+  phone          String?
+  role           String   @default("user") // user, admin, manager
+  passwordHash   String?  // hashed password
+  isActive       Boolean  @default(true)
+  lastLoginAt    DateTime?
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  teams          TeamMember[]
+  tasks          Task[]
+  ownedAccounts  Account[]
+  ownedContacts  Contact[]
+  ownedOpportunities Opportunity[]
+  activities     Activity[]
+  listViews      ListView[]
+  sessions       Session[]
+  authAccounts   AuthAccount[]
+  notifications  Notification[]
+  auditLogs      AuditLog[]
+  preferences    UserPreferences?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model AuthAccount {
+  id           String   @id @default(cuid())
+  userId       String
+  type         String   // credentials, google, etc.
+  provider     String
+  providerAccountId String
+  refresh_token String?
+  access_token String?
+  expires_at   Int?
+  token_type   String?
+  scope        String?
+  id_token     String?
+  session_state String?
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Team {
+  id             String   @id @default(cuid())
+  name           String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  members        TeamMember[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model TeamMember {
+  id      String @id @default(cuid())
+  user    User   @relation(fields: [userId], references: [id])
+  userId  String
+  team    Team   @relation(fields: [teamId], references: [id])
+  teamId  String
+  role    String @default("member")
+
+  @@unique([userId, teamId])
+}
+
+model Account {
+  id             String      @id @default(cuid())
+  name           String
+  type           AccountType
+  website        String?
+  phone          String?
+  email          String?
+  billingAddr    String?
+  shippingAddr   String?
+  notes          String?
+  owner          User?       @relation(fields: [ownerId], references: [id])
+  ownerId        String?
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  contacts       Contact[]
+  opportunities  Opportunity[]
+  aircraft       Aircraft[]  @relation("AccountAircraftOwner")
+  operatedAircraft Aircraft[] @relation("AccountAircraftOperator")
+  trips          Trip[]
+  workOrders     WorkOrder[]
+  tasks          Task[]
+  activities     Activity[]
+  documents      Document[]
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model Contact {
+  id             String   @id @default(cuid())
+  firstName      String
+  lastName       String
+  email          String?  @unique
+  phone          String?
+  title          String?
+  account        Account  @relation(fields: [accountId], references: [id])
+  accountId      String
+  owner          User?    @relation(fields: [ownerId], references: [id])
+  ownerId        String?
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  opportunities  Opportunity[]
+  tasks          Task[]
+  activities     Activity[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Aircraft {
+  id                 String         @id @default(cuid())
+  make               String
+  model              String
+  variant            String?
+  year               Int?
+  serialNumber       String?
+  tailNumber         String?        @unique
+  status             AircraftStatus @default(ACTIVE)
+  locationIcao       String?        // e.g., KSFB, KFXE
+  totalTimeHrs       Float?         // TT airframe
+  cycles             Int?
+  enginesJson        Json?          // engine details per side
+  avionicsJson       Json?
+  ownerAccount       Account?       @relation("AccountAircraftOwner", fields: [ownerAccountId], references: [id])
+  ownerAccountId     String?
+  operatorAccount    Account?       @relation("AccountAircraftOperator", fields: [operatorAccountId], references: [id])
+  operatorAccountId  String?
+  organization       Organization   @relation(fields: [organizationId], references: [id])
+  organizationId     String
+  opportunities      Opportunity[]
+  workOrders         WorkOrder[]
+  trips              Trip[]
+  activities         Activity[]
+  documents          Document[]
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+}
+
+model Opportunity {
+  id             String           @id @default(cuid())
+  name           String
+  stage          OpportunityStage @default(PROSPECT)
+  amount         Decimal?
+  currency       String           @default("USD")
+  closeDate      DateTime?
+  probability    Int?
+  pipeline       String           @default("AIRCRAFT_SALE")
+  description    String?
+  nextStep       String?
+  kanbanIndex    Int              @default(0)
+  source         String?
+  account        Account          @relation(fields: [accountId], references: [id])
+  accountId      String
+  contact        Contact?         @relation(fields: [contactId], references: [id])
+  contactId      String?
+  aircraft       Aircraft?        @relation(fields: [aircraftId], references: [id])
+  aircraftId     String?
+  owner          User?            @relation(fields: [ownerId], references: [id])
+  ownerId        String?
+  organization   Organization     @relation(fields: [organizationId], references: [id])
+  organizationId String
+  activities     Activity[]
+  tasks          Task[]
+  documents      Document[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([stage, kanbanIndex])
+}
+
+model Trip {
+  id             String   @id @default(cuid())
+  date           DateTime
+  fromIcao       String
+  toIcao         String
+  paxCount       Int?
+  purpose        String?  // owner flight, revenue charter, repo, demo, etc.
+  revenue        Decimal?
+  cost           Decimal?
+  aircraft       Aircraft @relation(fields: [aircraftId], references: [id])
+  aircraftId     String
+  account        Account? @relation(fields: [accountId], references: [id])
+  accountId      String?
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model WorkOrder {
+  id              String   @id @default(cuid())
+  title           String
+  description     String?
+  status          String   @default("OPEN")
+  dueDate         DateTime?
+  aircraft        Aircraft @relation(fields: [aircraftId], references: [id])
+  aircraftId      String
+  vendor          Account? @relation(fields: [vendorAccountId], references: [id])
+  vendorAccountId String?
+  organization    Organization @relation(fields: [organizationId], references: [id])
+  organizationId  String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Task {
+  id             String      @id @default(cuid())
+  title          String
+  status         TaskStatus  @default(OPEN)
+  dueDate        DateTime?
+  owner          User        @relation(fields: [ownerId], references: [id])
+  ownerId        String
+  account        Account?    @relation(fields: [accountId], references: [id])
+  accountId      String?
+  contact        Contact?    @relation(fields: [contactId], references: [id])
+  contactId      String?
+  opportunity    Opportunity? @relation(fields: [opportunityId], references: [id])
+  opportunityId  String?
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model Activity {
+  id             String       @id @default(cuid())
+  type           ActivityType @default(NOTE)
+  content        String
+  subject        String?
+  loggedAt       DateTime     @default(now())
+  user           User?        @relation(fields: [userId], references: [id])
+  userId         String?
+  account        Account?     @relation(fields: [accountId], references: [id])
+  accountId      String?
+  contact        Contact?     @relation(fields: [contactId], references: [id])
+  contactId      String?
+  opportunity    Opportunity? @relation(fields: [opportunityId], references: [id])
+  opportunityId  String?
+  aircraft       Aircraft?    @relation(fields: [aircraftId], references: [id])
+  aircraftId     String?
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  createdAt      DateTime     @default(now())
+}
+
+model Document {
+  id             String   @id @default(cuid())
+  name           String   @default("")
+  fileName       String   @default("")
+  fileSize       Int?
+  fileType       String?
+  url            String
+  description    String?
+  aircraft       Aircraft? @relation(fields: [aircraftId], references: [id])
+  aircraftId     String?
+  account        Account?  @relation(fields: [accountId], references: [id])
+  accountId      String?
+  opportunity    Opportunity? @relation(fields: [opportunityId], references: [id])
+  opportunityId  String?
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now()) @updatedAt
+}
+
+model ListView {
+  id             String   @id @default(cuid())
+  objectName     String
+  name           String
+  filterJson     Json
+  isPublic       Boolean  @default(true)
+  owner          User?    @relation(fields: [ownerId], references: [id])
+  ownerId        String?
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([organizationId, objectName, name])
+}
+
+model ObjectLayout {
+  id             String   @id @default(cuid())
+  objectName     String
+  layoutJson     Json
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([organizationId, objectName])
+}
+
+model EmailTemplate {
+  id             String   @id @default(cuid())
+  name           String
+  subject        String
+  body           String   // HTML email body
+  category       String?  // e.g., "Sales", "Support", "Marketing"
+  isActive       Boolean  @default(true)
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([organizationId, name])
+}
+
+model Notification {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type           String   // info, success, warning, error
+  title          String
+  message        String?
+  link           String?  // optional link to related resource
+  isRead         Boolean  @default(false)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId, isRead])
+}
+
+model AuditLog {
+  id             String   @id @default(cuid())
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action         String   // CREATE, UPDATE, DELETE
+  entityType     String   // Account, Contact, Opportunity, etc.
+  entityId       String
+  entityName     String?  // Cached name for display
+  changes        Json?    // Store before/after values for UPDATE
+  ipAddress      String?
+  userAgent      String?
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([organizationId, createdAt])
+}
+
+model UserPreferences {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  theme               String   @default("light") // light, dark, auto
+  language            String   @default("en")
+  timezone            String   @default("America/New_York")
+  dateFormat          String   @default("MM/DD/YYYY")
+  timeFormat          String   @default("12h") // 12h, 24h
+  defaultView         String   @default("list") // list, kanban, grid
+  itemsPerPage        Int      @default(25)
+  emailNotifications  Boolean  @default(true)
+  inAppNotifications  Boolean  @default(true)
+  dashboardLayout     Json?    // Customizable dashboard widget layout
+  sidebarCollapsed    Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
