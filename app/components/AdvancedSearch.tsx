@@ -103,7 +103,7 @@ export default function AdvancedSearch({ fields, onSearch, onClear }: AdvancedSe
                     <select
                       value={filter.field}
                       onChange={(e) => updateFilter(index, { field: e.target.value })}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900"
                     >
                       {fields.map((f) => (
                         <option key={f.name} value={f.name}>
@@ -115,7 +115,7 @@ export default function AdvancedSearch({ fields, onSearch, onClear }: AdvancedSe
                     <select
                       value={filter.operator}
                       onChange={(e) => updateFilter(index, { operator: e.target.value as any })}
-                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900"
                     >
                       {operatorOptions.map((op) => (
                         <option key={op.value} value={op.value}>
@@ -128,7 +128,7 @@ export default function AdvancedSearch({ fields, onSearch, onClear }: AdvancedSe
                       <select
                         value={filter.value}
                         onChange={(e) => updateFilter(index, { value: e.target.value })}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900"
                       >
                         <option value="">Select...</option>
                         {field.options.map((opt) => (
@@ -141,7 +141,7 @@ export default function AdvancedSearch({ fields, onSearch, onClear }: AdvancedSe
                       <select
                         value={filter.value}
                         onChange={(e) => updateFilter(index, { value: e.target.value === 'true' })}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900"
                       >
                         <option value="">Select...</option>
                         <option value="true">Yes</option>
@@ -152,7 +152,7 @@ export default function AdvancedSearch({ fields, onSearch, onClear }: AdvancedSe
                         type={field?.type || 'text'}
                         value={filter.value}
                         onChange={(e) => updateFilter(index, { value: e.target.value })}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900"
                         placeholder="Enter value..."
                       />
                     )}

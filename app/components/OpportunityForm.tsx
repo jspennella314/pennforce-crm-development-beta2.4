@@ -176,7 +176,7 @@ export default function OpportunityForm({ opportunityId, onSuccess, onCancel }: 
             id="name"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             placeholder="e.g., Aircraft Management Agreement - 2025"
             required
           />
@@ -192,7 +192,7 @@ export default function OpportunityForm({ opportunityId, onSuccess, onCancel }: 
               id="accountId"
               value={formData.accountId}
               onChange={(e) => setFormData({ ...formData, accountId: e.target.value, contactId: '' })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             >
               <option value="">Select an account...</option>
               {accounts.map((account) => (
@@ -211,7 +211,7 @@ export default function OpportunityForm({ opportunityId, onSuccess, onCancel }: 
               id="contactId"
               value={formData.contactId}
               onChange={(e) => setFormData({ ...formData, contactId: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               disabled={!formData.accountId && filteredContacts.length === 0}
             >
               <option value="">Select a contact...</option>
@@ -236,7 +236,7 @@ export default function OpportunityForm({ opportunityId, onSuccess, onCancel }: 
             id="aircraftId"
             value={formData.aircraftId}
             onChange={(e) => setFormData({ ...formData, aircraftId: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
           >
             <option value="">Select aircraft...</option>
             {aircraft.map((ac) => (
@@ -260,7 +260,7 @@ export default function OpportunityForm({ opportunityId, onSuccess, onCancel }: 
                 id="amount"
                 value={formData.amount}
                 onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                 placeholder="100000"
                 step="0.01"
                 min="0"
@@ -301,7 +301,7 @@ export default function OpportunityForm({ opportunityId, onSuccess, onCancel }: 
               id="pipeline"
               value={formData.pipeline}
               onChange={(e) => setFormData({ ...formData, pipeline: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               required
             >
               {pipelines.map((pipeline) => (
@@ -320,7 +320,7 @@ export default function OpportunityForm({ opportunityId, onSuccess, onCancel }: 
               id="stage"
               value={formData.stage}
               onChange={(e) => setFormData({ ...formData, stage: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               required
             >
               {stages.map((stage) => (
@@ -342,7 +342,7 @@ export default function OpportunityForm({ opportunityId, onSuccess, onCancel }: 
             id="closeDate"
             value={formData.closeDate}
             onChange={(e) => setFormData({ ...formData, closeDate: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
           />
         </div>
 
@@ -356,7 +356,7 @@ export default function OpportunityForm({ opportunityId, onSuccess, onCancel }: 
             value={formData.notes}
             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
             rows={4}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             placeholder="Additional details about this opportunity..."
           />
         </div>

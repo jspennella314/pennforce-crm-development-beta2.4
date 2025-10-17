@@ -3,6 +3,7 @@
 // POST /api/contacts - Create new contact
 
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
@@ -62,6 +63,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.organizationId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const {
       firstName,
@@ -71,12 +77,11 @@ export async function POST(request: NextRequest) {
       title,
       accountId,
       ownerId,
-      organizationId,
     } = body;
 
-    if (!firstName || !lastName || !accountId || !organizationId) {
+    if (!firstName || !lastName) {
       return NextResponse.json(
-        { error: 'firstName, lastName, accountId, and organizationId are required' },
+        { error: 'firstName and lastName are required' },
         { status: 400 }
       );
     }
@@ -90,7 +95,7 @@ export async function POST(request: NextRequest) {
         title,
         accountId,
         ownerId,
-        organizationId,
+        organizationId: session.user.organizationId,
       },
       include: {
         account: {

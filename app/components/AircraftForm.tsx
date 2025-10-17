@@ -157,7 +157,7 @@ export default function AircraftForm({ aircraftId, onSuccess, onCancel }: Aircra
               id="tailNumber"
               value={formData.tailNumber}
               onChange={(e) => setFormData({ ...formData, tailNumber: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               placeholder="N12345"
               required
             />
@@ -171,7 +171,7 @@ export default function AircraftForm({ aircraftId, onSuccess, onCancel }: Aircra
               id="status"
               value={formData.status}
               onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               required
             >
               {statuses.map((status) => (
@@ -194,7 +194,7 @@ export default function AircraftForm({ aircraftId, onSuccess, onCancel }: Aircra
               id="make"
               value={formData.make}
               onChange={(e) => setFormData({ ...formData, make: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               placeholder="Gulfstream"
               required
             />
@@ -209,7 +209,7 @@ export default function AircraftForm({ aircraftId, onSuccess, onCancel }: Aircra
               id="model"
               value={formData.model}
               onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               placeholder="G650"
               required
             />
@@ -227,7 +227,7 @@ export default function AircraftForm({ aircraftId, onSuccess, onCancel }: Aircra
               id="year"
               value={formData.year}
               onChange={(e) => setFormData({ ...formData, year: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               placeholder="2020"
               min="1900"
               max="2100"
@@ -243,7 +243,7 @@ export default function AircraftForm({ aircraftId, onSuccess, onCancel }: Aircra
               id="serialNumber"
               value={formData.serialNumber}
               onChange={(e) => setFormData({ ...formData, serialNumber: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               placeholder="6123"
             />
           </div>
@@ -259,7 +259,7 @@ export default function AircraftForm({ aircraftId, onSuccess, onCancel }: Aircra
               id="ownerAccountId"
               value={formData.ownerAccountId}
               onChange={(e) => setFormData({ ...formData, ownerAccountId: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             >
               <option value="">Select owner...</option>
               {accounts.map((account) => (
@@ -278,7 +278,7 @@ export default function AircraftForm({ aircraftId, onSuccess, onCancel }: Aircra
               id="operatorAccountId"
               value={formData.operatorAccountId}
               onChange={(e) => setFormData({ ...formData, operatorAccountId: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             >
               <option value="">Select operator...</option>
               {accounts.map((account) => (
@@ -301,7 +301,7 @@ export default function AircraftForm({ aircraftId, onSuccess, onCancel }: Aircra
               id="baseLocation"
               value={formData.baseLocation}
               onChange={(e) => setFormData({ ...formData, baseLocation: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               placeholder="KTEB - Teterboro Airport"
             />
           </div>
@@ -315,7 +315,7 @@ export default function AircraftForm({ aircraftId, onSuccess, onCancel }: Aircra
               id="registrationDate"
               value={formData.registrationDate}
               onChange={(e) => setFormData({ ...formData, registrationDate: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             />
           </div>
         </div>
@@ -330,7 +330,7 @@ export default function AircraftForm({ aircraftId, onSuccess, onCancel }: Aircra
             value={formData.notes}
             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
             rows={4}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             placeholder="Additional information about this aircraft..."
           />
         </div>

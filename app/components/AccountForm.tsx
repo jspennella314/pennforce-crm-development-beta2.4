@@ -16,11 +16,12 @@ export default function AccountForm({ accountId, onSuccess, onCancel }: AccountF
 
   const [formData, setFormData] = useState({
     name: '',
-    type: 'CUSTOMER',
+    type: 'OWNER',
     website: '',
     phone: '',
     email: '',
     billingAddr: '',
+    shippingAddr: '',
     notes: '',
   });
 
@@ -42,6 +43,7 @@ export default function AccountForm({ accountId, onSuccess, onCancel }: AccountF
         phone: data.phone || '',
         email: data.email || '',
         billingAddr: data.billingAddr || '',
+        shippingAddr: data.shippingAddr || '',
         notes: data.notes || '',
       });
     } catch (err) {
@@ -63,6 +65,7 @@ export default function AccountForm({ accountId, onSuccess, onCancel }: AccountF
         phone: formData.phone || null,
         email: formData.email || null,
         billingAddr: formData.billingAddr || null,
+        shippingAddr: formData.shippingAddr || null,
         notes: formData.notes || null,
       };
 
@@ -95,9 +98,11 @@ export default function AccountForm({ accountId, onSuccess, onCancel }: AccountF
   };
 
   const accountTypes = [
-    { value: 'CUSTOMER', label: 'Customer' },
-    { value: 'PROSPECT', label: 'Prospect' },
-    { value: 'PARTNER', label: 'Partner' },
+    { value: 'OWNER', label: 'Owner' },
+    { value: 'OPERATOR', label: 'Operator' },
+    { value: 'MRO', label: 'MRO' },
+    { value: 'BROKER', label: 'Broker' },
+    { value: 'CHARTER_CUSTOMER', label: 'Charter Customer' },
     { value: 'VENDOR', label: 'Vendor' },
   ];
 
@@ -126,7 +131,7 @@ export default function AccountForm({ accountId, onSuccess, onCancel }: AccountF
             id="name"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             placeholder="e.g., Acme Aviation Inc."
             required
           />
@@ -141,7 +146,7 @@ export default function AccountForm({ accountId, onSuccess, onCancel }: AccountF
             id="type"
             value={formData.type}
             onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             required
           >
             {accountTypes.map((type) => (
@@ -163,7 +168,7 @@ export default function AccountForm({ accountId, onSuccess, onCancel }: AccountF
               id="phone"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               placeholder="+1 (555) 123-4567"
             />
           </div>
@@ -177,7 +182,7 @@ export default function AccountForm({ accountId, onSuccess, onCancel }: AccountF
               id="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               placeholder="contact@example.com"
             />
           </div>
@@ -193,24 +198,40 @@ export default function AccountForm({ accountId, onSuccess, onCancel }: AccountF
             id="website"
             value={formData.website}
             onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             placeholder="https://www.example.com"
           />
         </div>
 
-        {/* Billing Address */}
-        <div>
-          <label htmlFor="billingAddr" className="block text-sm font-medium text-gray-700 mb-2">
-            Billing Address
-          </label>
-          <textarea
-            id="billingAddr"
-            value={formData.billingAddr}
-            onChange={(e) => setFormData({ ...formData, billingAddr: e.target.value })}
-            rows={3}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="123 Main St&#10;Suite 100&#10;City, State 12345"
-          />
+        {/* Addresses */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="billingAddr" className="block text-sm font-medium text-gray-700 mb-2">
+              Billing Address
+            </label>
+            <textarea
+              id="billingAddr"
+              value={formData.billingAddr}
+              onChange={(e) => setFormData({ ...formData, billingAddr: e.target.value })}
+              rows={3}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+              placeholder="123 Main St&#10;Suite 100&#10;City, State 12345"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="shippingAddr" className="block text-sm font-medium text-gray-700 mb-2">
+              Shipping Address
+            </label>
+            <textarea
+              id="shippingAddr"
+              value={formData.shippingAddr}
+              onChange={(e) => setFormData({ ...formData, shippingAddr: e.target.value })}
+              rows={3}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+              placeholder="456 Oak Ave&#10;Building B&#10;City, State 67890"
+            />
+          </div>
         </div>
 
         {/* Notes */}
@@ -223,7 +244,7 @@ export default function AccountForm({ accountId, onSuccess, onCancel }: AccountF
             value={formData.notes}
             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
             rows={4}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             placeholder="Additional information about this account..."
           />
         </div>

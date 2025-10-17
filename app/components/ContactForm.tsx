@@ -77,11 +77,7 @@ export default function ContactForm({ contactId, onSuccess, onCancel }: ContactF
         title: formData.title || null,
         email: formData.email || null,
         phone: formData.phone || null,
-        mobile: formData.mobile || null,
         accountId: formData.accountId || null,
-        address: formData.address || null,
-        preferredContact: formData.preferredContact,
-        notes: formData.notes || null,
       };
 
       const url = contactId ? `/api/contacts/${contactId}` : '/api/contacts';
@@ -152,7 +148,7 @@ export default function ContactForm({ contactId, onSuccess, onCancel }: ContactF
               id="firstName"
               value={formData.firstName}
               onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               placeholder="John"
               required
             />
@@ -167,7 +163,7 @@ export default function ContactForm({ contactId, onSuccess, onCancel }: ContactF
               id="lastName"
               value={formData.lastName}
               onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               placeholder="Doe"
               required
             />
@@ -185,7 +181,7 @@ export default function ContactForm({ contactId, onSuccess, onCancel }: ContactF
               id="title"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               placeholder="Chief Pilot"
             />
           </div>
@@ -198,7 +194,7 @@ export default function ContactForm({ contactId, onSuccess, onCancel }: ContactF
               id="accountId"
               value={formData.accountId}
               onChange={(e) => setFormData({ ...formData, accountId: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             >
               <option value="">Select an account...</option>
               {accounts.map((account) => (
@@ -221,7 +217,7 @@ export default function ContactForm({ contactId, onSuccess, onCancel }: ContactF
               id="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               placeholder="john@example.com"
             />
           </div>
@@ -235,7 +231,7 @@ export default function ContactForm({ contactId, onSuccess, onCancel }: ContactF
               id="phone"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               placeholder="+1 (555) 123-4567"
             />
           </div>
@@ -249,7 +245,7 @@ export default function ContactForm({ contactId, onSuccess, onCancel }: ContactF
               id="mobile"
               value={formData.mobile}
               onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               placeholder="+1 (555) 987-6543"
             />
           </div>
@@ -264,7 +260,7 @@ export default function ContactForm({ contactId, onSuccess, onCancel }: ContactF
             id="preferredContact"
             value={formData.preferredContact}
             onChange={(e) => setFormData({ ...formData, preferredContact: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
           >
             {contactMethods.map((method) => (
               <option key={method.value} value={method.value}>
@@ -284,7 +280,7 @@ export default function ContactForm({ contactId, onSuccess, onCancel }: ContactF
             value={formData.address}
             onChange={(e) => setFormData({ ...formData, address: e.target.value })}
             rows={3}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             placeholder="123 Main St, City, State 12345"
           />
         </div>
@@ -299,7 +295,7 @@ export default function ContactForm({ contactId, onSuccess, onCancel }: ContactF
             value={formData.notes}
             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
             rows={4}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             placeholder="Additional information about this contact..."
           />
         </div>

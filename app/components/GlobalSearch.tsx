@@ -160,7 +160,7 @@ export default function GlobalSearch() {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Search accounts, contacts, opportunities, aircraft, tasks..."
-            className="flex-1 text-lg outline-none"
+            className="flex-1 text-lg outline-none text-gray-900"
           />
           {loading && (
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600" />
