@@ -63,11 +63,22 @@ export default function TasksPage() {
   return (
     <AppLayout>
       <div className="p-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Tasks</h1>
-          <p className="text-gray-600 mt-1">
-            {openTasks.length} open, {completedTasks.length} completed
-          </p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Tasks</h1>
+            <p className="text-gray-600 mt-1">
+              {openTasks.length} open, {completedTasks.length} completed
+            </p>
+          </div>
+          <Link
+            href="/tasks/new"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            New Task
+          </Link>
         </div>
 
         {/* Filters */}
