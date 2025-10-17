@@ -461,3 +461,63 @@ model UserPreferences {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 }
+
+// Workflow Automation
+model WorkflowRule {
+  id             String   @id @default(cuid())
+  name           String
+  description    String?
+  isActive       Boolean  @default(true)
+  triggerType    String   // RECORD_CREATED, RECORD_UPDATED, FIELD_CHANGED, TIME_BASED
+  objectType     String   // Account, Contact, Opportunity, Task, etc.
+  conditions     Json     // Conditions to evaluate
+  actions        Json     // Actions to execute
+  lastTriggered  DateTime?
+  timesTriggered Int      @default(0)
+  organizationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([organizationId, objectType])
+  @@index([isActive])
+}
+
+model WorkflowExecution {
+  id             String   @id @default(cuid())
+  workflowRuleId String
+  entityType     String
+  entityId       String
+  status         String   // SUCCESS, FAILED, PENDING
+  result         Json?    // Execution results/errors
+  executedAt     DateTime @default(now())
+
+  @@index([workflowRuleId])
+  @@index([entityType, entityId])
+}
+
+// Calendar and Events
+model CalendarEvent {
+  id             String    @id @default(cuid())
+  title          String
+  description    String?
+  startTime      DateTime
+  endTime        DateTime
+  location       String?
+  isAllDay       Boolean   @default(false)
+  eventType      String    @default("MEETING") // MEETING, CALL, TASK, DEMO, INSPECTION, etc.
+  status         String    @default("SCHEDULED") // SCHEDULED, COMPLETED, CANCELLED
+  reminderMinutes Int?     // Send reminder X minutes before
+  userId         String?   // Event owner/organizer
+  accountId      String?
+  contactId      String?
+  opportunityId  String?
+  aircraftId     String?
+  organizationId String
+  attendees      Json?     // Array of attendee IDs/emails
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([userId, startTime])
+  @@index([organizationId, startTime])
+  @@index([accountId])
+}

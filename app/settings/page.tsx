@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useNotification } from '@/app/contexts/NotificationContext';
 import Sidebar from '@/app/components/Sidebar';
@@ -50,30 +50,42 @@ export default function SettingsPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [profileRes, prefsRes] = await Promise.all([
+          fetch('/api/user/profile'),
+          fetch('/api/user/preferences'),
+        ]);
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const [profileRes, prefsRes] = await Promise.all([
-        fetch('/api/user/profile'),
-        fetch('/api/user/preferences'),
-      ]);
+        if (!profileRes.ok || !prefsRes.ok) {
+          throw new Error('Failed to fetch user data');
+        }
 
-      const profileData = await profileRes.json();
-      const prefsData = await prefsRes.json();
+        const profileData = await profileRes.json();
+        const prefsData = await prefsRes.json();
 
-      setProfile(profileData);
-      setPreferences(prefsData);
-      setName(profileData.name || '');
-      setPhone(profileData.phone || '');
-    } catch (error) {
-      notification.error('Failed to load settings');
-    } finally {
-      setLoading(false);
+        if (profileData.error || prefsData.error) {
+          throw new Error(profileData.error || prefsData.error);
+        }
+
+        setProfile(profileData);
+        setPreferences(prefsData);
+        setName(profileData.name || '');
+        setPhone(profileData.phone || '');
+      } catch (error: any) {
+        console.error('Settings fetch error:', error);
+        notification.error('Failed to load settings', error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (session) {
+      fetchData();
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,9 +99,10 @@ export default function SettingsPage() {
 
       if (!res.ok) throw new Error('Failed to update profile');
 
+      const updatedProfile = await res.json();
+      setProfile(updatedProfile);
       notification.success('Profile updated successfully');
-      fetchData();
-    } catch (error) {
+    } catch (err) {
       notification.error('Failed to update profile');
     } finally {
       setSaving(false);
@@ -111,7 +124,7 @@ export default function SettingsPage() {
       if (!res.ok) throw new Error('Failed to update preferences');
 
       notification.success('Preferences updated successfully');
-    } catch (error) {
+    } catch (err) {
       notification.error('Failed to update preferences');
     } finally {
       setSaving(false);
@@ -150,7 +163,7 @@ export default function SettingsPage() {
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-    } catch (error) {
+    } catch (err) {
       notification.error('Failed to update password');
     } finally {
       setSaving(false);
