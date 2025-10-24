@@ -351,6 +351,7 @@ model Opportunity {
 
   @@index([stage, kanbanIndex])
   @@index([stage, position])
+  @@index([updatedAt])
 }
 
 model StageSetting {
