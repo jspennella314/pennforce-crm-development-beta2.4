@@ -8,11 +8,12 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const aircraft = await prisma.aircraft.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         ownerAccount: {
           select: { id: true, name: true, type: true },
@@ -67,9 +68,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const {
       make,
@@ -89,7 +91,7 @@ export async function PATCH(
     } = body;
 
     const aircraft = await prisma.aircraft.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(make && { make }),
         ...(model && { model }),
@@ -128,11 +130,12 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await prisma.aircraft.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ success: true });

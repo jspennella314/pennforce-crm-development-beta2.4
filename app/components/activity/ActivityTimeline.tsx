@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { Phone, Mail, Calendar, CheckSquare, MessageSquare, Filter } from 'lucide-react';
+import { TaskStatus } from '@prisma/client';
+import { fromTaskStatus } from '@/lib/status';
 
 interface Activity {
   id: string;
@@ -166,12 +168,13 @@ export default function ActivityTimeline({ activities, onRefresh }: ActivityTime
                       {activity.status && (
                         <span className={`
                           inline-block px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap
-                          ${activity.status === 'Completed' ? 'bg-green-100 text-green-800' :
-                            activity.status === 'In Progress' ? 'bg-blue-100 text-blue-800' :
-                            activity.status === 'Not Started' ? 'bg-gray-100 text-gray-800' :
+                          ${activity.status === TaskStatus.DONE ? 'bg-green-100 text-green-800' :
+                            activity.status === TaskStatus.IN_PROGRESS ? 'bg-blue-100 text-blue-800' :
+                            activity.status === TaskStatus.OPEN ? 'bg-gray-100 text-gray-800' :
+                            activity.status === TaskStatus.BLOCKED ? 'bg-red-100 text-red-800' :
                             'bg-gray-100 text-gray-800'}
                         `}>
-                          {activity.status}
+                          {fromTaskStatus(activity.status as TaskStatus)}
                         </span>
                       )}
                     </div>

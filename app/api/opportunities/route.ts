@@ -3,6 +3,7 @@
 // POST /api/opportunities - Create new opportunity
 
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
@@ -71,6 +72,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.organizationId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const {
       name,
@@ -88,12 +94,11 @@ export async function POST(request: NextRequest) {
       contactId,
       aircraftId,
       ownerId,
-      organizationId,
     } = body;
 
-    if (!name || !accountId || !organizationId) {
+    if (!name) {
       return NextResponse.json(
-        { error: 'Name, accountId, and organizationId are required' },
+        { error: 'Name is required' },
         { status: 400 }
       );
     }
@@ -111,11 +116,11 @@ export async function POST(request: NextRequest) {
         nextStep,
         kanbanIndex: kanbanIndex || 0,
         source,
-        accountId,
-        contactId,
-        aircraftId,
-        ownerId,
-        organizationId,
+        accountId: accountId || null,
+        contactId: contactId || null,
+        aircraftId: aircraftId || null,
+        ownerId: ownerId || session.user.id,
+        organizationId: session.user.organizationId,
       },
       include: {
         account: {

@@ -25,9 +25,7 @@ export default function AircraftForm({ aircraftId, onSuccess, onCancel }: Aircra
     status: 'ACTIVE',
     ownerAccountId: '',
     operatorAccountId: '',
-    baseLocation: '',
-    registrationDate: '',
-    notes: '',
+    locationIcao: '',
   });
 
   useEffect(() => {
@@ -51,9 +49,7 @@ export default function AircraftForm({ aircraftId, onSuccess, onCancel }: Aircra
             status: aircraftData.status,
             ownerAccountId: aircraftData.ownerAccountId || '',
             operatorAccountId: aircraftData.operatorAccountId || '',
-            baseLocation: aircraftData.baseLocation || '',
-            registrationDate: aircraftData.registrationDate ? new Date(aircraftData.registrationDate).toISOString().slice(0, 10) : '',
-            notes: aircraftData.notes || '',
+            locationIcao: aircraftData.locationIcao || '',
           });
         }
       } catch (err) {
@@ -82,9 +78,7 @@ export default function AircraftForm({ aircraftId, onSuccess, onCancel }: Aircra
         status: formData.status,
         ownerAccountId: formData.ownerAccountId || null,
         operatorAccountId: formData.operatorAccountId || null,
-        baseLocation: formData.baseLocation || null,
-        registrationDate: formData.registrationDate ? new Date(formData.registrationDate).toISOString() : null,
-        notes: formData.notes || null,
+        locationIcao: formData.locationIcao || null,
       };
 
       const url = aircraftId ? `/api/aircraft/${aircraftId}` : '/api/aircraft';
@@ -290,48 +284,18 @@ export default function AircraftForm({ aircraftId, onSuccess, onCancel }: Aircra
           </div>
         </div>
 
-        {/* Base Location and Registration Date */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="baseLocation" className="block text-sm font-medium text-gray-700 mb-2">
-              Base Location
-            </label>
-            <input
-              type="text"
-              id="baseLocation"
-              value={formData.baseLocation}
-              onChange={(e) => setFormData({ ...formData, baseLocation: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-              placeholder="KTEB - Teterboro Airport"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="registrationDate" className="block text-sm font-medium text-gray-700 mb-2">
-              Registration Date
-            </label>
-            <input
-              type="date"
-              id="registrationDate"
-              value={formData.registrationDate}
-              onChange={(e) => setFormData({ ...formData, registrationDate: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-            />
-          </div>
-        </div>
-
-        {/* Notes */}
+        {/* Location ICAO */}
         <div>
-          <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2">
-            Notes
+          <label htmlFor="locationIcao" className="block text-sm font-medium text-gray-700 mb-2">
+            Location ICAO Code
           </label>
-          <textarea
-            id="notes"
-            value={formData.notes}
-            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-            rows={4}
+          <input
+            type="text"
+            id="locationIcao"
+            value={formData.locationIcao}
+            onChange={(e) => setFormData({ ...formData, locationIcao: e.target.value })}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-            placeholder="Additional information about this aircraft..."
+            placeholder="KTEB"
           />
         </div>
       </div>

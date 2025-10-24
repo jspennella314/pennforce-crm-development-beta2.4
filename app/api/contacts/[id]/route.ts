@@ -8,11 +8,12 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const contact = await prisma.contact.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         account: {
           select: { id: true, name: true, type: true },
@@ -61,14 +62,15 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
-    const { firstName, lastName, email, phone, title, ownerId } = body;
+    const { firstName, lastName, email, phone, title, ownerId, accountId } = body;
 
     const contact = await prisma.contact.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(firstName && { firstName }),
         ...(lastName && { lastName }),
@@ -76,6 +78,7 @@ export async function PATCH(
         ...(phone !== undefined && { phone }),
         ...(title !== undefined && { title }),
         ...(ownerId !== undefined && { ownerId }),
+        ...(accountId !== undefined && { accountId }),
       },
       include: {
         account: {
@@ -99,11 +102,12 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await prisma.contact.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ success: true });

@@ -19,6 +19,37 @@ export default function ContactsPage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ type: 'single' | 'bulk'; id?: string }>({ type: 'bulk' });
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async (id: string) => {
+    setDeleteTarget({ type: 'single', id });
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget.id) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/contacts/${deleteTarget.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete contact');
+      }
+
+      // Remove from local state
+      setContacts(contacts.filter(c => c.id !== deleteTarget.id));
+      setShowDeleteModal(false);
+      setDeleteTarget({ type: 'bulk' });
+    } catch (error) {
+      console.error('Error deleting contact:', error);
+      alert('Failed to delete contact. Please try again.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   useEffect(() => {
     fetchContacts();
@@ -162,6 +193,12 @@ export default function ContactsPage() {
           >
             Edit Contact
           </Link>
+          <button
+            onClick={() => handleDelete(record.id)}
+            className="block w-full px-3 py-2 text-sm text-center bg-white text-red-600 border border-red-300 rounded hover:bg-red-50 transition-colors"
+          >
+            Delete Contact
+          </button>
         </div>
       </div>
     </div>
@@ -246,6 +283,38 @@ export default function ContactsPage() {
           />
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">Delete Contact</h3>
+            </div>
+            <div className="px-6 py-4">
+              <p className="text-sm text-gray-600">
+                Are you sure you want to delete this contact? This action cannot be undone.
+              </p>
+            </div>
+            <div className="px-6 py-4 bg-gray-50 flex justify-end gap-3 rounded-b-lg">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                disabled={isDeleting}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded hover:bg-red-700 transition-colors disabled:opacity-50"
+              >
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppLayout>
   );
 }

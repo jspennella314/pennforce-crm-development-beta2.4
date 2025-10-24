@@ -8,11 +8,12 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const account = await prisma.account.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         owner: {
           select: { id: true, name: true, email: true },
@@ -65,9 +66,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const {
       name,
@@ -82,7 +84,7 @@ export async function PATCH(
     } = body;
 
     const account = await prisma.account.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(name && { name }),
         ...(type && { type }),
@@ -113,11 +115,49 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+
+    // Check for related records
+    const account = await prisma.account.findUnique({
+      where: { id },
+      include: {
+        _count: {
+          select: {
+            contacts: true,
+            opportunities: true,
+            aircraft: true,
+            trips: true,
+          },
+        },
+      },
+    });
+
+    if (!account) {
+      return NextResponse.json(
+        { error: 'Account not found' },
+        { status: 404 }
+      );
+    }
+
+    // Check if account has related records
+    const relatedRecords = [];
+    if (account._count.contacts > 0) relatedRecords.push(`${account._count.contacts} contact(s)`);
+    if (account._count.opportunities > 0) relatedRecords.push(`${account._count.opportunities} opportunity(ies)`);
+    if (account._count.aircraft > 0) relatedRecords.push(`${account._count.aircraft} aircraft`);
+    if (account._count.trips > 0) relatedRecords.push(`${account._count.trips} trip(s)`);
+
+    if (relatedRecords.length > 0) {
+      return NextResponse.json(
+        { error: `Cannot delete account. It has ${relatedRecords.join(', ')}. Please remove these first.` },
+        { status: 400 }
+      );
+    }
+
     await prisma.account.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ success: true });

@@ -5,11 +5,11 @@ import { getSessionOrRedirect } from '@/lib/auth-utils';
 // GET /api/email-templates/[id] - Get single template
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSessionOrRedirect();
-    const { id } = params;
 
     const template = await prisma.emailTemplate.findFirst({
       where: {
@@ -31,11 +31,11 @@ export async function GET(
 // PATCH /api/email-templates/[id] - Update template
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSessionOrRedirect();
-    const { id } = params;
     const body = await request.json();
 
     const { name, subject, body: emailBody, category, isActive } = body;
@@ -63,11 +63,11 @@ export async function PATCH(
 // DELETE /api/email-templates/[id] - Delete template
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSessionOrRedirect();
-    const { id } = params;
 
     await prisma.emailTemplate.delete({
       where: {

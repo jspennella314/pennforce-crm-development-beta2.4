@@ -2,16 +2,19 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Building2, Users, Plane, Target, CheckSquare, BarChart3, Settings } from 'lucide-react';
+import { Home, Building2, Users, UserPlus, Plane, Target, CheckSquare, BarChart3, Settings, Mail, List } from 'lucide-react';
 
 const navItems = [
   { href: '/dashboard', label: 'Home', icon: Home },
   { href: '/accounts', label: 'Accounts', icon: Building2 },
   { href: '/contacts', label: 'Contacts', icon: Users },
+  { href: '/leads', label: 'Leads', icon: UserPlus },
   { href: '/aircraft', label: 'Aircraft', icon: Plane },
   { href: '/opportunities', label: 'Opportunities', icon: Target },
   { href: '/tasks', label: 'Tasks', icon: CheckSquare },
   { href: '/reports', label: 'Reports', icon: BarChart3 },
+  { href: '/mailing-lists', label: 'Lists', icon: List },
+  { href: '/email-campaigns', label: 'Campaigns', icon: Mail },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 

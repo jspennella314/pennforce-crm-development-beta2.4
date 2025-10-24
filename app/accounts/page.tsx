@@ -19,6 +19,62 @@ export default function AccountsPage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ type: 'single' | 'bulk'; id?: string }>({ type: 'bulk' });
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async (id: string) => {
+    setDeleteTarget({ type: 'single', id });
+    setShowDeleteModal(true);
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedIds.length === 0) return;
+    setDeleteTarget({ type: 'bulk' });
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    setIsDeleting(true);
+    try {
+      if (deleteTarget.type === 'single' && deleteTarget.id) {
+        // Single delete
+        const response = await fetch(`/api/accounts/${deleteTarget.id}`, {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || 'Failed to delete account');
+        }
+
+        setAccounts(accounts.filter(a => a.id !== deleteTarget.id));
+      } else if (deleteTarget.type === 'bulk') {
+        // Bulk delete
+        const deletePromises = selectedIds.map(async id => {
+          const response = await fetch(`/api/accounts/${id}`, { method: 'DELETE' });
+          return { id, response, data: await response.json() };
+        });
+
+        const results = await Promise.all(deletePromises);
+        const failedDeletes = results.filter(r => !r.response.ok);
+
+        if (failedDeletes.length > 0) {
+          const errorMessages = failedDeletes.map(f => f.data.error).join('\n');
+          throw new Error(`Failed to delete ${failedDeletes.length} account(s):\n${errorMessages}`);
+        }
+
+        setAccounts(accounts.filter(a => !selectedIds.includes(a.id)));
+        setSelectedIds([]);
+      }
+
+      setShowDeleteModal(false);
+      setDeleteTarget({ type: 'bulk' });
+    } catch (error) {
+      console.error('Error deleting account(s):', error);
+      alert(error instanceof Error ? error.message : 'Failed to delete account(s). Please try again.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   useEffect(() => {
     fetchAccounts();
@@ -204,6 +260,12 @@ export default function AccountsPage() {
           >
             Edit Account
           </Link>
+          <button
+            onClick={() => handleDelete(record.id)}
+            className="block w-full px-3 py-2 text-sm text-center bg-white text-red-600 border border-red-300 rounded hover:bg-red-50 transition-colors"
+          >
+            Delete Account
+          </button>
         </div>
       </div>
     </div>
@@ -257,14 +319,28 @@ export default function AccountsPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-semibold text-gray-900">Accounts</h1>
-              <p className="text-sm text-gray-600 mt-1">{accounts.length} total accounts</p>
+              <p className="text-sm text-gray-600 mt-1">
+                {selectedIds.length > 0
+                  ? `${selectedIds.length} selected`
+                  : `${accounts.length} total accounts`}
+              </p>
             </div>
-            <Link
-              href="/accounts/new"
-              className="px-4 py-2 bg-[#0176d3] text-white rounded hover:bg-[#014486] transition-colors text-sm font-medium"
-            >
-              New Account
-            </Link>
+            <div className="flex gap-2">
+              {selectedIds.length > 0 && (
+                <button
+                  onClick={handleBulkDelete}
+                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm font-medium"
+                >
+                  Delete {selectedIds.length} Account{selectedIds.length !== 1 ? 's' : ''}
+                </button>
+              )}
+              <Link
+                href="/accounts/new"
+                className="px-4 py-2 bg-[#0176d3] text-white rounded hover:bg-[#014486] transition-colors text-sm font-medium"
+              >
+                New Account
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -288,6 +364,42 @@ export default function AccountsPage() {
           />
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {deleteTarget.type === 'single' ? 'Delete Account' : `Delete ${selectedIds.length} Accounts`}
+              </h3>
+            </div>
+            <div className="px-6 py-4">
+              <p className="text-sm text-gray-600">
+                {deleteTarget.type === 'single'
+                  ? 'Are you sure you want to delete this account? This action cannot be undone.'
+                  : `Are you sure you want to delete ${selectedIds.length} accounts? This action cannot be undone.`}
+              </p>
+            </div>
+            <div className="px-6 py-4 bg-gray-50 flex justify-end gap-3 rounded-b-lg">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                disabled={isDeleting}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded hover:bg-red-700 transition-colors disabled:opacity-50"
+              >
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppLayout>
   );
 }

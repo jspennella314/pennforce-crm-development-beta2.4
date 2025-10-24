@@ -2,20 +2,22 @@
 
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { TaskStatus } from '@prisma/client';
 
 export async function createTask(data: {
   contactId: string;
   subject: string;
   organizationId: string;
+  ownerId: string;
 }) {
   try {
     const task = await prisma.task.create({
       data: {
-        subject: data.subject,
-        status: 'Not Started',
-        priority: 'Normal',
+        title: data.subject,
+        status: TaskStatus.OPEN,
         contactId: data.contactId,
         organizationId: data.organizationId,
+        ownerId: data.ownerId,
       },
     });
 
@@ -32,19 +34,17 @@ export async function logCall(data: {
   subject: string;
   notes?: string;
   organizationId: string;
+  ownerId: string;
 }) {
   try {
-    // Create a completed task with type "Call"
+    // Create a completed task representing a call
     const call = await prisma.task.create({
       data: {
-        subject: data.subject,
-        description: data.notes || '',
-        status: 'Completed',
-        priority: 'Normal',
-        taskType: 'Call',
+        title: data.subject,
+        status: TaskStatus.DONE,
         contactId: data.contactId,
         organizationId: data.organizationId,
-        completedDate: new Date(),
+        ownerId: data.ownerId,
       },
     });
 
@@ -60,17 +60,17 @@ export async function createEvent(data: {
   contactId: string;
   subject: string;
   organizationId: string;
+  ownerId: string;
 }) {
   try {
-    // Create an event/meeting (using Task model with type "Meeting")
+    // Create an event/meeting task
     const event = await prisma.task.create({
       data: {
-        subject: data.subject,
-        status: 'Not Started',
-        priority: 'Normal',
-        taskType: 'Meeting',
+        title: data.subject,
+        status: TaskStatus.OPEN,
         contactId: data.contactId,
         organizationId: data.organizationId,
+        ownerId: data.ownerId,
       },
     });
 

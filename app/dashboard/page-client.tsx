@@ -55,12 +55,20 @@ export default function DashboardClientPage() {
     );
   }
 
-  if (!dashboardData) {
+  if (!dashboardData || !dashboardData.metrics) {
     return (
       <AppLayout>
         <div className="p-8">
           <div className="bg-white rounded-lg shadow p-12 text-center">
-            <div className="text-gray-500">Failed to load dashboard</div>
+            <div className="text-red-600 font-medium mb-2">
+              {dashboardData?.error || 'Failed to load dashboard'}
+            </div>
+            <button
+              onClick={fetchDashboardData}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Retry
+            </button>
           </div>
         </div>
       </AppLayout>
@@ -116,7 +124,7 @@ export default function DashboardClientPage() {
       <div className="p-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-1">Welcome back! Here's what's happening.</p>
+          <p className="text-gray-600 mt-1">Welcome back! Here&apos;s what&apos;s happening.</p>
         </div>
 
         {/* Primary Stats Grid */}

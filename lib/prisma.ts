@@ -1,7 +1,7 @@
 // PennForce CRM - Prisma Client Singleton
 // Prevents multiple Prisma instances in development with hot reload
 
-import { PrismaClient } from '../app/generated/prisma';
+import { PrismaClient } from '@prisma/client';
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;

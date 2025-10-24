@@ -7,7 +7,7 @@ type ActivityTab = 'task' | 'call' | 'event' | 'more';
 
 interface ActivityPanelProps {
   recordId: string;
-  recordType: 'contact' | 'account' | 'opportunity';
+  recordType: 'contact' | 'account' | 'opportunity' | 'aircraft';
 }
 
 export default function ActivityPanel({ recordId, recordType }: ActivityPanelProps) {

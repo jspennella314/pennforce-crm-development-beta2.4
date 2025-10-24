@@ -8,11 +8,12 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const opportunity = await prisma.opportunity.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         account: {
           select: { id: true, name: true, type: true },
@@ -71,9 +72,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const {
       name,
@@ -93,7 +95,7 @@ export async function PATCH(
     } = body;
 
     const opportunity = await prisma.opportunity.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(name && { name }),
         ...(stage && { stage }),
@@ -138,11 +140,12 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await prisma.opportunity.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ success: true });

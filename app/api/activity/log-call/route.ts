@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { logCall } from '@/app/actions/contact-activity';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { auth } from '@/lib/auth';
+
+// Prisma/bcrypt require Node.js runtime (not Edge)
+export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.organizationId) {
+    const session = await auth();
+    if (!session?.user?.organizationId || !session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -25,6 +27,7 @@ export async function POST(request: NextRequest) {
       subject,
       notes,
       organizationId: session.user.organizationId,
+      ownerId: session.user.id,
     });
 
     if (!result.success) {

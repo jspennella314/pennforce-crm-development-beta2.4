@@ -3,6 +3,7 @@
 import LightningSidebar from './LightningSidebar';
 import LightningTopbar from './LightningTopbar';
 import ConsoleTabs from './ConsoleTabs';
+import UtilityBar from '@/components/lightning/UtilityBar';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -26,6 +27,9 @@ export default function AppShell({ children }: AppShellProps) {
         <main className="flex-1 overflow-auto">
           {children}
         </main>
+
+        {/* Bottom Utility Bar */}
+        <UtilityBar />
       </div>
     </div>
   );

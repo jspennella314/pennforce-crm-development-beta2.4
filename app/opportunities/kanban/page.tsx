@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { DropResult } from '@hello-pangea/dnd';
 import AppLayout from '../../components/AppLayout';
 import Link from 'next/link';
 import KanbanBoard from '../../components/opportunity/KanbanBoard';
+import { updateStage } from '../serverActions';
 
 interface Opportunity {
   id: string;
@@ -22,6 +23,7 @@ export default function OpportunitiesKanbanPage() {
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [loading, setLoading] = useState(true);
   const [pipelineFilter, setPipelineFilter] = useState('Sales');
+  const [isPending, startTransition] = useTransition();
 
   const stages = [
     { id: 'QUALIFICATION', label: 'Qualification', color: 'bg-gray-100' },
@@ -78,6 +80,10 @@ export default function OpportunitiesKanbanPage() {
 
     const oppId = draggableId;
     const newStage = destination.droppableId;
+    const newPosition = destination.index;
+
+    // Save previous state for rollback
+    const previousOpportunities = [...opportunities];
 
     // Optimistic update
     const updatedOpportunities = [...opportunities];
@@ -91,42 +97,51 @@ export default function OpportunitiesKanbanPage() {
     // Update stage
     movedOpp.stage = newStage;
 
-    // Find the new position in the array
-    const insertIndex = updatedOpportunities.findIndex(opp => opp.stage === newStage);
-    const finalIndex = insertIndex >= 0 ? insertIndex + destination.index : updatedOpportunities.length;
+    // Find opportunities in the destination stage
+    const stageOpps = updatedOpportunities.filter(o => o.stage === newStage);
+
+    // Calculate insert position
+    const insertAt = Math.min(newPosition, stageOpps.length);
+
+    // Find the actual array index to insert at
+    const firstStageOppIndex = updatedOpportunities.findIndex(o => o.stage === newStage);
+    const insertIndex = firstStageOppIndex >= 0
+      ? firstStageOppIndex + insertAt
+      : updatedOpportunities.length;
 
     // Insert at new position
-    updatedOpportunities.splice(finalIndex, 0, movedOpp);
+    updatedOpportunities.splice(insertIndex, 0, movedOpp);
 
-    // Update kanban indices
-    updatedOpportunities.forEach((opp, idx) => {
-      opp.kanbanIndex = idx;
-    });
+    // Update positions for all opportunities in the destination stage
+    updatedOpportunities
+      .filter(o => o.stage === newStage)
+      .forEach((opp, idx) => {
+        opp.kanbanIndex = idx;
+      });
 
     setOpportunities(updatedOpportunities);
 
-    // Persist to backend
-    try {
-      const response = await fetch(`/api/opportunities/${oppId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+    // Persist to backend with server action
+    startTransition(async () => {
+      try {
+        const result = await updateStage({
+          id: oppId,
           stage: newStage,
-          kanbanIndex: destination.index,
-        }),
-      });
+          position: newPosition
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to update opportunity');
+        if (!result.ok) {
+          // WIP limit hit - show error and revert
+          console.error('Failed to update opportunity:', result.error);
+          alert(result.error || 'Failed to move opportunity');
+          setOpportunities(previousOpportunities);
+        }
+      } catch (error) {
+        console.error('Error updating opportunity:', error);
+        // Revert on error
+        setOpportunities(previousOpportunities);
       }
-
-      // Refresh to get accurate indices from server
-      await fetchOpportunities();
-    } catch (error) {
-      console.error('Error updating opportunity:', error);
-      // Revert on error
-      await fetchOpportunities();
-    }
+    });
   };
 
   const prepareKanbanColumns = () => {

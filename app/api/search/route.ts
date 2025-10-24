@@ -31,9 +31,9 @@ export async function GET(request: NextRequest) {
         where: {
           organizationId: orgId,
           OR: [
-            { name: { contains: query, mode: 'insensitive' } },
-            { email: { contains: query, mode: 'insensitive' } },
-            { phone: { contains: query, mode: 'insensitive' } },
+            { name: { contains: query } },
+            { email: { contains: query } },
+            { phone: { contains: query } },
           ],
         },
         take: limit,
@@ -45,15 +45,22 @@ export async function GET(request: NextRequest) {
         where: {
           organizationId: orgId,
           OR: [
-            { firstName: { contains: query, mode: 'insensitive' } },
-            { lastName: { contains: query, mode: 'insensitive' } },
-            { email: { contains: query, mode: 'insensitive' } },
-            { phone: { contains: query, mode: 'insensitive' } },
+            { firstName: { contains: query } },
+            { lastName: { contains: query } },
+            { email: { contains: query } },
+            { phone: { contains: query } },
           ],
         },
         take: limit,
-        select: { id: true, firstName: true, lastName: true, title: true, email: true, accountId: true },
-        include: { account: { select: { name: true } } },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          title: true,
+          email: true,
+          accountId: true,
+          account: { select: { name: true } }
+        },
       }),
 
       // Search opportunities
@@ -61,13 +68,20 @@ export async function GET(request: NextRequest) {
         where: {
           organizationId: orgId,
           OR: [
-            { name: { contains: query, mode: 'insensitive' } },
-            { description: { contains: query, mode: 'insensitive' } },
+            { name: { contains: query } },
+            { description: { contains: query } },
           ],
         },
         take: limit,
-        select: { id: true, name: true, stage: true, amount: true, currency: true, accountId: true },
-        include: { account: { select: { name: true } } },
+        select: {
+          id: true,
+          name: true,
+          stage: true,
+          amount: true,
+          currency: true,
+          accountId: true,
+          account: { select: { name: true } }
+        },
       }),
 
       // Search aircraft
@@ -75,26 +89,23 @@ export async function GET(request: NextRequest) {
         where: {
           organizationId: orgId,
           OR: [
-            { tailNumber: { contains: query, mode: 'insensitive' } },
-            { manufacturer: { contains: query, mode: 'insensitive' } },
-            { model: { contains: query, mode: 'insensitive' } },
+            { tailNumber: { contains: query } },
+            { make: { contains: query } },
+            { model: { contains: query } },
           ],
         },
         take: limit,
-        select: { id: true, tailNumber: true, manufacturer: true, model: true, year: true },
+        select: { id: true, tailNumber: true, make: true, model: true, year: true },
       }),
 
       // Search tasks
       prisma.task.findMany({
         where: {
           organizationId: orgId,
-          OR: [
-            { title: { contains: query, mode: 'insensitive' } },
-            { description: { contains: query, mode: 'insensitive' } },
-          ],
+          title: { contains: query },
         },
         take: limit,
-        select: { id: true, title: true, status: true, priority: true, dueDate: true },
+        select: { id: true, title: true, status: true, dueDate: true },
       }),
     ]);
 
@@ -118,21 +129,21 @@ export async function GET(request: NextRequest) {
         id: o.id,
         type: 'Opportunity',
         title: o.name,
-        subtitle: `${o.stage} • ${o.currency}${o.amount.toLocaleString()} ${o.account?.name ? '• ' + o.account.name : ''}`,
+        subtitle: `${o.stage} • ${o.currency}${o.amount?.toLocaleString() || '0'} ${o.account?.name ? '• ' + o.account.name : ''}`,
         url: `/opportunities/${o.id}`,
       })),
       ...aircraft.map(a => ({
         id: a.id,
         type: 'Aircraft',
-        title: a.tailNumber,
-        subtitle: `${a.manufacturer} ${a.model} ${a.year ? '(' + a.year + ')' : ''}`,
+        title: a.tailNumber || 'Unknown',
+        subtitle: `${a.make} ${a.model} ${a.year ? '(' + a.year + ')' : ''}`,
         url: `/aircraft/${a.id}`,
       })),
       ...tasks.map(t => ({
         id: t.id,
         type: 'Task',
         title: t.title,
-        subtitle: `${t.status} • ${t.priority} ${t.dueDate ? '• Due ' + new Date(t.dueDate).toLocaleDateString() : ''}`,
+        subtitle: `${t.status} ${t.dueDate ? '• Due ' + new Date(t.dueDate).toLocaleDateString() : ''}`,
         url: `/tasks/${t.id}`,
       })),
     ];

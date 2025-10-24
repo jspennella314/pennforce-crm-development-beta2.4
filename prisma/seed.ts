@@ -328,7 +328,8 @@ async function main() {
   // Create Documents
   await prisma.document.create({
     data: {
-      label: 'Aircraft Registration',
+      name: 'Aircraft Registration',
+      fileName: 'N550GX-registration.pdf',
       url: 'https://docs.example.com/N550GX-registration.pdf',
       aircraftId: aircraft1.id,
       organizationId: org.id,
@@ -338,7 +339,8 @@ async function main() {
 
   await prisma.document.create({
     data: {
-      label: 'Insurance Certificate',
+      name: 'Insurance Certificate',
+      fileName: 'elitejets-insurance-cert.pdf',
       url: 'https://docs.example.com/elitejets-insurance-cert.pdf',
       accountId: ownerAccount.id,
       organizationId: org.id,

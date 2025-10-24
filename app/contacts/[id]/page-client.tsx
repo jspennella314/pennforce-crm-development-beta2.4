@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Edit2 } from 'lucide-react';
 import Link from 'next/link';
 import AppLayout from '../../components/AppLayout';
@@ -12,6 +12,7 @@ import ActivityTimeline from '../../components/activity/ActivityTimeline';
 
 export default function ContactDetailClientPage() {
   const params = useParams();
+  const router = useRouter();
   const contactId = params.id as string;
 
   const [contact, setContact] = useState<any>(null);
@@ -81,7 +82,10 @@ export default function ContactDetailClientPage() {
                     {contact.owner?.name || '—'}
                   </div>
                 </div>
-                <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded">
+                <button
+                  onClick={() => router.push(`/contacts/${contactId}/edit`)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded"
+                >
                   <Edit2 className="w-3 h-3 text-gray-500" />
                 </button>
               </div>
@@ -94,7 +98,10 @@ export default function ContactDetailClientPage() {
                     {contact.firstName} {contact.lastName}
                   </div>
                 </div>
-                <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded">
+                <button
+                  onClick={() => router.push(`/contacts/${contactId}/edit`)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded"
+                >
                   <Edit2 className="w-3 h-3 text-gray-500" />
                 </button>
               </div>
@@ -116,7 +123,10 @@ export default function ContactDetailClientPage() {
                     )}
                   </div>
                 </div>
-                <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded">
+                <button
+                  onClick={() => router.push(`/contacts/${contactId}/edit`)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded"
+                >
                   <Edit2 className="w-3 h-3 text-gray-500" />
                 </button>
               </div>
@@ -129,7 +139,10 @@ export default function ContactDetailClientPage() {
                     {contact.title || '—'}
                   </div>
                 </div>
-                <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded">
+                <button
+                  onClick={() => router.push(`/contacts/${contactId}/edit`)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded"
+                >
                   <Edit2 className="w-3 h-3 text-gray-500" />
                 </button>
               </div>
@@ -148,7 +161,10 @@ export default function ContactDetailClientPage() {
                     )}
                   </div>
                 </div>
-                <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded">
+                <button
+                  onClick={() => router.push(`/contacts/${contactId}/edit`)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded"
+                >
                   <Edit2 className="w-3 h-3 text-gray-500" />
                 </button>
               </div>
@@ -167,7 +183,10 @@ export default function ContactDetailClientPage() {
                     )}
                   </div>
                 </div>
-                <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded">
+                <button
+                  onClick={() => router.push(`/contacts/${contactId}/edit`)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded"
+                >
                   <Edit2 className="w-3 h-3 text-gray-500" />
                 </button>
               </div>
@@ -180,7 +199,10 @@ export default function ContactDetailClientPage() {
                     {contact.doNotCall ? 'Yes' : 'No'}
                   </div>
                 </div>
-                <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded">
+                <button
+                  onClick={() => router.push(`/contacts/${contactId}/edit`)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded"
+                >
                   <Edit2 className="w-3 h-3 text-gray-500" />
                 </button>
               </div>
@@ -193,7 +215,10 @@ export default function ContactDetailClientPage() {
                     {contact.emailOptOut ? 'Yes' : 'No'}
                   </div>
                 </div>
-                <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded">
+                <button
+                  onClick={() => router.push(`/contacts/${contactId}/edit`)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded"
+                >
                   <Edit2 className="w-3 h-3 text-gray-500" />
                 </button>
               </div>

@@ -3,6 +3,7 @@
 // POST /api/aircraft - Create new aircraft
 
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
@@ -63,6 +64,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.organizationId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const {
       make,
@@ -79,12 +85,11 @@ export async function POST(request: NextRequest) {
       avionicsJson,
       ownerAccountId,
       operatorAccountId,
-      organizationId,
     } = body;
 
-    if (!make || !model || !organizationId) {
+    if (!make || !model) {
       return NextResponse.json(
-        { error: 'Make, model, and organizationId are required' },
+        { error: 'Make and model are required' },
         { status: 400 }
       );
     }
@@ -105,7 +110,7 @@ export async function POST(request: NextRequest) {
         avionicsJson,
         ownerAccountId,
         operatorAccountId,
-        organizationId,
+        organizationId: session.user.organizationId,
       },
       include: {
         ownerAccount: {

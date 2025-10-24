@@ -5,11 +5,11 @@ import { getSessionOrRedirect } from '@/lib/auth-utils';
 // PATCH /api/notifications/[id] - Mark as read/unread
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSessionOrRedirect();
-    const { id } = params;
     const body = await request.json();
     const { isRead } = body;
 
@@ -32,11 +32,11 @@ export async function PATCH(
 // DELETE /api/notifications/[id] - Delete notification
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSessionOrRedirect();
-    const { id } = params;
 
     await prisma.notification.delete({
       where: {

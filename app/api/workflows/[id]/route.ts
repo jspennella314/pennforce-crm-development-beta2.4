@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/lib/auth';
 import {
   updateWorkflowRule,
   deleteWorkflowRule,
@@ -9,16 +8,17 @@ import {
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const { id } = await params;
+    const session = await auth();
     if (!session?.user?.organizationId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const config: Partial<WorkflowRuleConfig> = await request.json();
-    const rule = await updateWorkflowRule(params.id, config);
+    const rule = await updateWorkflowRule(id, config);
 
     return NextResponse.json(rule);
   } catch (error: any) {
@@ -32,15 +32,16 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const { id } = await params;
+    const session = await auth();
     if (!session?.user?.organizationId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await deleteWorkflowRule(params.id);
+    await deleteWorkflowRule(id);
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error('Error deleting workflow rule:', error);

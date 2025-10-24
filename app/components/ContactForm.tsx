@@ -14,6 +14,7 @@ export default function ContactForm({ contactId, onSuccess, onCancel }: ContactF
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [accounts, setAccounts] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
   const [formData, setFormData] = useState({
@@ -24,6 +25,7 @@ export default function ContactForm({ contactId, onSuccess, onCancel }: ContactF
     phone: '',
     mobile: '',
     accountId: '',
+    ownerId: '',
     address: '',
     preferredContact: 'EMAIL',
     notes: '',
@@ -33,9 +35,16 @@ export default function ContactForm({ contactId, onSuccess, onCancel }: ContactF
     const fetchData = async () => {
       setLoadingData(true);
       try {
-        const accountsRes = await fetch('/api/accounts');
+        const [accountsRes, usersRes] = await Promise.all([
+          fetch('/api/accounts'),
+          fetch('/api/users')
+        ]);
+
         const accountsData = await accountsRes.json();
+        const usersData = await usersRes.json();
+
         setAccounts(accountsData);
+        setUsers(usersData);
 
         if (contactId) {
           const contactRes = await fetch(`/api/contacts/${contactId}`);
@@ -49,6 +58,7 @@ export default function ContactForm({ contactId, onSuccess, onCancel }: ContactF
             phone: contactData.phone || '',
             mobile: contactData.mobile || '',
             accountId: contactData.accountId || '',
+            ownerId: contactData.ownerId || '',
             address: contactData.address || '',
             preferredContact: contactData.preferredContact || 'EMAIL',
             notes: contactData.notes || '',
@@ -78,6 +88,7 @@ export default function ContactForm({ contactId, onSuccess, onCancel }: ContactF
         email: formData.email || null,
         phone: formData.phone || null,
         accountId: formData.accountId || null,
+        ownerId: formData.ownerId || null,
       };
 
       const url = contactId ? `/api/contacts/${contactId}` : '/api/contacts';
@@ -204,6 +215,26 @@ export default function ContactForm({ contactId, onSuccess, onCancel }: ContactF
               ))}
             </select>
           </div>
+        </div>
+
+        {/* Owner */}
+        <div>
+          <label htmlFor="ownerId" className="block text-sm font-medium text-gray-700 mb-2">
+            Contact Owner
+          </label>
+          <select
+            id="ownerId"
+            value={formData.ownerId}
+            onChange={(e) => setFormData({ ...formData, ownerId: e.target.value })}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+          >
+            <option value="">Select an owner...</option>
+            {users.map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.name} ({user.email})
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Contact Information */}

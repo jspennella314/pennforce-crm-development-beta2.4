@@ -18,6 +18,15 @@ const navigation = [
   { name: 'Calendar', href: '/calendar', icon: '📅' },
   { name: 'Workflows', href: '/workflows', icon: '⚡' },
   { name: 'Reports', href: '/reports', icon: '📈' },
+];
+
+// Marketing campaigns navigation items
+const marketingNavigation = [
+  { name: 'Mailing Lists', href: '/mailing-lists', icon: '📋' },
+  { name: 'Email Campaigns', href: '/email-campaigns', icon: '📧' },
+];
+
+const settingsNavigation = [
   { name: 'Settings', href: '/settings', icon: '⚙️' },
 ];
 
@@ -71,6 +80,59 @@ export default function Sidebar() {
             </Link>
           );
         })}
+
+        {/* Marketing Campaigns Section */}
+        <div className="pt-4 mt-4 border-t border-gray-700">
+          <div className="px-4 mb-2">
+            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              Marketing Campaigns
+            </h3>
+          </div>
+          {marketingNavigation.map((item) => {
+            const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`
+                  flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium
+                  transition-colors
+                  ${isActive
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                  }
+                `}
+              >
+                <span className="text-xl">{item.icon}</span>
+                {item.name}
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Settings Section */}
+        <div className="pt-4 mt-4 border-t border-gray-700">
+          {settingsNavigation.map((item) => {
+            const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`
+                  flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium
+                  transition-colors
+                  ${isActive
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                  }
+                `}
+              >
+                <span className="text-xl">{item.icon}</span>
+                {item.name}
+              </Link>
+            );
+          })}
+        </div>
       </nav>
 
       <div className="border-t border-gray-800">

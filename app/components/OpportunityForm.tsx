@@ -27,9 +27,19 @@ export default function OpportunityForm({ opportunityId, onSuccess, onCancel }: 
     probability: '50',
     closeDate: '',
     pipeline: 'Sales',
-    stage: 'QUALIFICATION',
+    stage: 'QUALIFY',
     notes: '',
   });
+
+  const fetchAircraft = async () => {
+    try {
+      const response = await fetch('/api/aircraft');
+      const data = await response.json();
+      setAircraft(data);
+    } catch (err) {
+      console.error('Error fetching aircraft:', err);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -139,7 +149,8 @@ export default function OpportunityForm({ opportunityId, onSuccess, onCancel }: 
 
   const pipelines = ['Sales', 'Management', 'Charter', 'Maintenance'];
   const stages = [
-    { value: 'QUALIFICATION', label: 'Qualification' },
+    { value: 'PROSPECT', label: 'Prospect' },
+    { value: 'QUALIFY', label: 'Qualification' },
     { value: 'PROPOSAL', label: 'Proposal' },
     { value: 'NEGOTIATION', label: 'Negotiation' },
     { value: 'WON', label: 'Won' },
@@ -229,9 +240,29 @@ export default function OpportunityForm({ opportunityId, onSuccess, onCancel }: 
 
         {/* Aircraft */}
         <div>
-          <label htmlFor="aircraftId" className="block text-sm font-medium text-gray-700 mb-2">
-            Aircraft
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label htmlFor="aircraftId" className="block text-sm font-medium text-gray-700">
+              Aircraft
+            </label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={fetchAircraft}
+                className="text-xs text-blue-600 hover:text-blue-700 hover:underline"
+              >
+                Refresh
+              </button>
+              <span className="text-gray-400">|</span>
+              <a
+                href="/aircraft/new"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-blue-600 hover:text-blue-700 hover:underline"
+              >
+                New Aircraft
+              </a>
+            </div>
+          </div>
           <select
             id="aircraftId"
             value={formData.aircraftId}
