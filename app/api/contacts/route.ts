@@ -8,16 +8,19 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.organizationId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
-    const organizationId = searchParams.get('organizationId');
     const accountId = searchParams.get('accountId');
     const search = searchParams.get('search');
 
-    const where: any = {};
-
-    if (organizationId) {
-      where.organizationId = organizationId;
-    }
+    const where: any = {
+      // Always filter by authenticated user's organization
+      organizationId: session.user.organizationId,
+    };
 
     if (accountId) {
       where.accountId = accountId;

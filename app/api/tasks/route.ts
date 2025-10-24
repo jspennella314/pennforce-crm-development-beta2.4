@@ -3,22 +3,26 @@
 // POST /api/tasks - Create new task
 
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.organizationId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
-    const organizationId = searchParams.get('organizationId');
     const status = searchParams.get('status');
     const ownerId = searchParams.get('ownerId');
     const accountId = searchParams.get('accountId');
     const opportunityId = searchParams.get('opportunityId');
 
-    const where: any = {};
-
-    if (organizationId) {
-      where.organizationId = organizationId;
-    }
+    const where: any = {
+      // Always filter by authenticated user's organization
+      organizationId: session.user.organizationId,
+    };
 
     if (status) {
       where.status = status;
