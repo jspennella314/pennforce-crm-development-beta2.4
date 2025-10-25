@@ -111,8 +111,17 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(contact, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating contact:', error);
+
+    // Handle unique constraint violation (duplicate email)
+    if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
+      return NextResponse.json(
+        { error: 'A contact with this email address already exists' },
+        { status: 409 }
+      );
+    }
+
     return NextResponse.json(
       { error: 'Failed to create contact' },
       { status: 500 }

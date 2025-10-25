@@ -262,8 +262,8 @@ export default function EmailCampaignsPage() {
                             )}
                           </div>
                         </td>
-                  </tr>
-                ))}
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
